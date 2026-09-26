@@ -25,6 +25,9 @@ for both the app and its embedded Safari extension. Build once with Xcode;
 do not combine separately signed bundles with `lipo`. Debug builds still use
 the active architecture. The existing Intel deployment target, bundle IDs,
 entitlements, and configuration location are unchanged.
+The configuration-opening and resetting messages require macOS 10.12.4;
+those calls are availability-guarded so older Intel systems still build and
+can run the rest of the app.
 
 The **Universal macOS build** workflow uses macOS 15 and Xcode 16.4. It builds
 without distribution signing credentials, packages the app with `ditto`, and
