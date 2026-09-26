@@ -23,6 +23,7 @@ jobs:
           persist-credentials: false
       - name: Build both architectures
         run: |
+          set -euo pipefail
           xcodebuild -version
           xcodebuild \
             -project "$GITHUB_WORKSPACE/Vimari.xcodeproj" \
@@ -33,6 +34,7 @@ jobs:
             build
       - name: Package and check the extracted application
         run: |
+          set -euo pipefail
           ditto -c -k --sequesterRsrc --keepParent \
             "$RUNNER_TEMP/vimari-build/Release/Vimari.app" \
             "$RUNNER_TEMP/Vimari-unsigned.app.zip"
