@@ -13,8 +13,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationShouldTerminateAfterLastWindowClosed(_: NSApplication) -> Bool {
         return true
     }
-    
     @IBAction func openHelpUrl(_ sender: Any) {
-        NSWorkspace.shared.open(URL(string: "https://github.com/televator-apps/vimari#usage")!)
+        NSWorkspace.shared.open(URL(string: "https://github.com/vladdoster/vimari#usage")!)
     }
 }
