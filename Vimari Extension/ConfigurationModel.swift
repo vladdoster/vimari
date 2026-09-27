@@ -21,7 +21,7 @@ class ConfigurationModel: ConfigurationModelProtocol {
     private enum Constant {
         static let settingsFileName = "defaultSettings"
         static let userSettingsFileName = "userSettings"
-        static let defaultEditor = "TextEdit"
+        static let defaultEditorBundleIdentifier = "com.apple.TextEdit"
     }
 
     let userSettingsUrl: URL = FileManager.documentDirectoryURL
@@ -30,18 +30,22 @@ class ConfigurationModel: ConfigurationModelProtocol {
     
     func editConfigFile() throws {
         let settingsFilePath = try findOrCreateUserSettings()
-        NSWorkspace.shared.openFile(
-            settingsFilePath,
-            withApplication: Constant.defaultEditor
-        )
+        openInDefaultEditor(settingsFilePath)
     }
-    
+
     func resetConfigFile() throws {
         let settingsFilePath = try overwriteUserSettings()
-        NSWorkspace.shared.openFile(
-            settingsFilePath,
-            withApplication: Constant.defaultEditor
-        )
+        openInDefaultEditor(settingsFilePath)
+    }
+
+    private func openInDefaultEditor(_ filePath: String) {
+        let workspace = NSWorkspace.shared
+        let fileURL = URL(fileURLWithPath: filePath)
+        guard let editorURL = workspace.urlForApplication(withBundleIdentifier: Constant.defaultEditorBundleIdentifier) else {
+            workspace.open(fileURL)
+            return
+        }
+        workspace.open([fileURL], withApplicationAt: editorURL, configuration: NSWorkspace.OpenConfiguration())
     }
     
     func getDefaultSettings() throws -> [String : Any] {
