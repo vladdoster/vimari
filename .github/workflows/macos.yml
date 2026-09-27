@@ -1,0 +1,54 @@
+name: Universal macOS build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_16.4.app/Contents/Developer
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+      - name: Build both architectures
+        run: |
+          set -euo pipefail
+          xcodebuild -version
+          xcodebuild \
+            -project "$GITHUB_WORKSPACE/Vimari.xcodeproj" \
+            -target Vimari \
+            -configuration Release \
+            SYMROOT="$RUNNER_TEMP/vimari-build" \
+            CODE_SIGNING_ALLOWED=NO \
+            build
+      - name: Package and check the extracted application
+        run: |
+          set -euo pipefail
+          ditto -c -k --sequesterRsrc --keepParent \
+            "$RUNNER_TEMP/vimari-build/Release/Vimari.app" \
+            "$RUNNER_TEMP/Vimari-unsigned.app.zip"
+          ditto -x -k "$RUNNER_TEMP/Vimari-unsigned.app.zip" "$RUNNER_TEMP/unpacked"
+          make -C "$GITHUB_WORKSPACE" verify-universal \
+            APP="$RUNNER_TEMP/unpacked/Vimari.app"
+          cd "$RUNNER_TEMP"
+          shasum -a 256 Vimari-unsigned.app.zip > Vimari-unsigned.app.zip.sha256
+      - name: Upload unsigned validation artifact (not a release)
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: Vimari-universal-unsigned
+          path: |
+            ${{ runner.temp }}/Vimari-unsigned.app.zip
+            ${{ runner.temp }}/Vimari-unsigned.app.zip.sha256
+          if-no-files-found: error
+          retention-days: 7

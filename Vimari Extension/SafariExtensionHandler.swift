@@ -21,7 +21,7 @@ enum TabDirection: String {
 class SafariExtensionHandler: SFSafariExtensionHandler {
     
     private enum Constant {
-        static let mainAppName = "Vimari"
+        static let mainAppBundleIdentifier = "net.vladdoster.Vimari"
         static let newTabPageURL = "https://duckduckgo.com" //Try it :D
     }
     
@@ -69,7 +69,15 @@ class SafariExtensionHandler: SFSafariExtensionHandler {
     override func toolbarItemClicked(in _: SFSafariWindow) {
         // This method will be called when your toolbar item is clicked.
         NSLog("The extension's toolbar item was clicked")
-        NSWorkspace.shared.launchApplication(Constant.mainAppName)
+        guard let appURL = NSWorkspace.shared.urlForApplication(withBundleIdentifier: Constant.mainAppBundleIdentifier) else {
+            NSLog("Unable to locate \(Constant.mainAppBundleIdentifier)")
+            return
+        }
+        NSWorkspace.shared.openApplication(at: appURL, configuration: NSWorkspace.OpenConfiguration()) { _, error in
+            if let error = error {
+                NSLog(error.localizedDescription)
+            }
+        }
     }
 
     override func validateToolbarItem(in _: SFSafariWindow, validationHandler: @escaping ((Bool, String) -> Void)) {

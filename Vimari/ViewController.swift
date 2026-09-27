@@ -7,7 +7,7 @@ class ViewController: NSViewController {
     @IBOutlet var spinner: NSProgressIndicator!
     
     private enum Constant {
-        static let extensionIdentifier = "net.televator.Vimari.SafariExtension"
+        static let extensionIdentifier = "net.vladdoster.Vimari.SafariExtension"
         static let openSettings = "openSettings"
         static let resetSettings = "resetSettings"
     }
@@ -74,6 +74,8 @@ class ViewController: NSViewController {
     }
     
     func dispatchOpenSettings() {
+        guard #available(macOS 10.12.4, *) else { return }
+
         SFSafariApplication.dispatchMessage(
             withName: Constant.openSettings,
             toExtensionWithIdentifier: Constant.extensionIdentifier,
@@ -85,6 +87,8 @@ class ViewController: NSViewController {
     }
     
     func dispatchResetSettings() {
+        guard #available(macOS 10.12.4, *) else { return }
+
         SFSafariApplication.dispatchMessage(
             withName: Constant.resetSettings,
             toExtensionWithIdentifier: Constant.extensionIdentifier,
